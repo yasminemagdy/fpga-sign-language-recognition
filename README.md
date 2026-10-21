@@ -7,8 +7,6 @@
 ![Python](https://img.shields.io/badge/Python-MediaPipe-green)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-Course project for **CEN466 / EEN466 – Advanced Digital System Design** (Abu Dhabi University, Spring 2025–26).
-
 ## Description
 
 A PC extracts **21 3D hand landmarks** (63 values) from a camera feed with MediaPipe, converts them into a **fixed-point feature vector**, and streams it over **Bluetooth (UART)** to a Cyclone IV FPGA. The FPGA validates the packet, classifies the gesture with a **26-class linear SVM** implemented in VHDL, and shows the recognized letter (A–Z) on the board's LCD.
