@@ -125,12 +125,6 @@ Show an ASL letter to the camera and the letter appears on the LCD. `KEY[0]` res
 - Accuracy depends on lighting, hand pose, and camera angle, since MediaPipe runs on the PC.
 - Planned: narrower accumulator, on-FPGA feature extraction, and a larger gesture vocabulary (words/dynamic signs).
 
-## Team & Acknowledgments
-
-- **Yasmin Magdy Loksha**: [YOUR ROLE]
-- **[TEAMMATE NAMES]**: [their roles]
-- **Instructors:** Dr. Jawad Yousaf, Dr. Taimur Hassan, Dr. Ahmed Ali, Abu Dhabi University
-
 ## License
 
 [MIT](LICENSE)
