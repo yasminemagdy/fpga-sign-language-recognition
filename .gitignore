@@ -1,0 +1,33 @@
+# Simulation output
+sim/work/
+work/
+*.wlf
+*.ghw
+*.cf
+transcript
+*.mpf
+*.cr.mti
+*.bak
+
+# Quartus build output
+db/
+incremental_db/
+output_files/
+simulation/
+*.rpt
+*.summary
+*.qws
+*.sof
+*.pof
+*.jdi
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
