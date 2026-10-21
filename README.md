@@ -41,8 +41,6 @@ flowchart LR
 
 ![System demo](docs/images/demo.png)
 
-> 📌 *Add a photo of the board showing a recognized letter and/or the Quartus RTL view, save it as `docs/images/demo.png`, and add your demo video link here.*
-
 ## Results
 
 | Metric | Parallel (26 classifiers) | Sequential MAC (final) |
