@@ -41,17 +41,6 @@ flowchart LR
 
 ![System demo](docs/images/demo.png)
 
-## Results
-
-| Metric | Parallel (26 classifiers) | Sequential MAC (final) |
-|---|---|---|
-| Logic elements | [FILL IN] | [FILL IN] |
-| Embedded multipliers (9-bit) | [FILL IN] | [FILL IN] |
-| Fmax | [FILL IN] | [FILL IN] |
-| Latency per gesture | [FILL IN] | ≈ 34 µs (sim) |
-| Accuracy (software / FPGA) | [FILL IN] | [FILL IN] |
-
-> Copy the numbers from the Quartus *Fitter → Resource Usage Summary* and *Timing Analyzer* reports.
 
 ## Repository Structure
 
