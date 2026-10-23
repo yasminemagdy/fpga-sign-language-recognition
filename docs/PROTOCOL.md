@@ -32,5 +32,5 @@ Derived from `rtl/uart_rx.vhd` and `rtl/feature_packet_rx.vhd`.
 Debug indicators driven by the packet receiver: header bytes seen (bits 0–1), receiving data (bit 2), checksum byte received (bit 3), checksum valid (bit 4).
 
 ## Fixed-point format
-Features are 16-bit signed integers (`DATA_W = 16`). **Scale factor used by the host: [FILL IN, e.g. value × 256].**
+Features are 16-bit signed integers (`DATA_W = 16`). **Scaling:** each raw landmark coordinate is standardised with the training-set `StandardScaler`, multiplied by **256** and rounded to `int16`. SVM weights use the same ×256 scale (`int16`), and biases are scaled by 256 × 256 so they line up with the products inside the MAC accumulator.
 The host script and the model-weight export must use the same scaling.

@@ -19,7 +19,7 @@ architecture sim of tb_feature_packet_rx is
     signal packet_valid : std_logic;
     signal status_led   : std_logic_vector(4 downto 0);
 
-    signal valid_seen   : std_logic := '0';
+    signal valid_count  : integer := 0;
 
     type byte_array_t is array (natural range <>) of std_logic_vector(7 downto 0);
 
@@ -75,10 +75,10 @@ begin
     valid_monitor : process(clk, rst)
     begin
         if rst = '1' then
-            valid_seen <= '0';
+            valid_count <= 0;
         elsif rising_edge(clk) then
             if packet_valid = '1' then
-                valid_seen <= '1';
+                valid_count <= valid_count + 1;
             end if;
         end if;
     end process;
@@ -95,11 +95,37 @@ begin
         wait for 2 * CLK_PERIOD;
 
 
+        -- Test 1: well-formed packet is accepted and decoded correctly
         for i in packet'range loop
             send_byte(rx_done, rx_byte, packet(i));
         end loop;
+        wait for 5 * CLK_PERIOD;
+        assert valid_count = 1
+            report "valid packet was not accepted" severity failure;
+        for f in 0 to NUM_FEATURES - 1 loop
+            assert features_out(f) = signed(std_logic_vector'(packet(3 + 2*f) & packet(2 + 2*f)))
+                report "feature " & integer'image(f) & " decoded incorrectly" severity failure;
+        end loop;
+        report "tb_feature_packet_rx: valid packet accepted, all 63 features decoded correctly" severity note;
 
-        wait until valid_seen = '1';
+        -- Test 2: same packet with a corrupted checksum is dropped
+        for i in packet'low to packet'high - 1 loop
+            send_byte(rx_done, rx_byte, packet(i));
+        end loop;
+        send_byte(rx_done, rx_byte, packet(packet'high) xor x"01");
+        wait for 5 * CLK_PERIOD;
+        assert valid_count = 1
+            report "packet with bad checksum was NOT dropped" severity failure;
+        report "tb_feature_packet_rx: bad-checksum packet dropped" severity note;
+
+        -- Test 3: receiver recovers and accepts the next good packet
+        for i in packet'range loop
+            send_byte(rx_done, rx_byte, packet(i));
+        end loop;
+        wait for 5 * CLK_PERIOD;
+        assert valid_count = 2
+            report "receiver did not recover after a bad packet" severity failure;
+        report "tb_feature_packet_rx: receiver recovered, next good packet accepted" severity note;
         stop;
         wait;
     end process;

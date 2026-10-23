@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.env.all;
+use ieee.math_real.all;
 use work.svm_pkg.all;
 
 entity tb_svm_top is
@@ -56,7 +57,38 @@ begin
         );
 
     stim : process
-        variable exp_cls : unsigned(4 downto 0);
+        constant NUM_RANDOM : integer := 25;
+        variable seed1    : positive := 7;
+        variable seed2    : positive := 13;
+        variable r        : real;
+        variable pass_cnt : integer := 0;
+
+        procedure run_case(id : integer; vec : feature_vec_t; variable passed : inout integer) is
+            variable exp_cls : unsigned(4 downto 0);
+            variable cycles  : integer := 0;
+        begin
+            exp_cls := expected_class(vec);
+            wait until rising_edge(clk);
+            start <= '1';
+            wait until rising_edge(clk);
+            start <= '0';
+            cycles := 1;
+            while done /= '1' loop
+                wait until rising_edge(clk);
+                cycles := cycles + 1;
+            end loop;
+            if predicted_class = exp_cls then
+                passed := passed + 1;
+            end if;
+            assert predicted_class = exp_cls
+                report "case " & integer'image(id) & ": expected class " &
+                       integer'image(to_integer(exp_cls)) & ", got " &
+                       integer'image(to_integer(predicted_class))
+                severity error;
+            if id = 1 then
+                report "latency: " & integer'image(cycles) & " clock cycles from start to done" severity note;
+            end if;
+        end procedure;
     begin
         rst <= '1';
         wait for 5 * CLK_PERIOD;
@@ -126,13 +158,23 @@ begin
         x(61) <= to_signed(243, DATA_W);
         x(62) <= to_signed(334, DATA_W);
         wait for CLK_PERIOD;
-        exp_cls := expected_class(x);
 
-        wait until rising_edge(clk);
-        start <= '1';
-        wait until rising_edge(clk);
-        start <= '0';
-        wait until rising_edge(clk) and done = '1';
+        -- Test 1: fixed vector (real feature sample)
+        run_case(1, x, pass_cnt);
+
+        -- Tests 2..NUM_RANDOM+1: pseudo-random feature vectors in [-512, 511]
+        for t in 2 to NUM_RANDOM + 1 loop
+            for i in 0 to NUM_FEATURES - 1 loop
+                uniform(seed1, seed2, r);
+                x(i) <= to_signed(integer(floor(r * 1024.0)) - 512, DATA_W);
+            end loop;
+            wait for CLK_PERIOD;
+            run_case(t, x, pass_cnt);
+        end loop;
+
+        report "tb_svm_top: " & integer'image(pass_cnt) & "/" &
+               integer'image(NUM_RANDOM + 1) & " cases matched the reference model" severity note;
+        assert pass_cnt = NUM_RANDOM + 1 report "tb_svm_top: FAILURES DETECTED" severity failure;
 	stop;
 	wait;
     end process;
